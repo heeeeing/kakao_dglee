@@ -6,7 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-public class KakaoDkleeApplication {
+public class Main {
 
 	public static void main(String[] args) {
 		//3[a]z
