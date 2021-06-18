@@ -4,12 +4,11 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-import com.kakao_ex1.demo.model.ManagementResult;
-import com.kakao_ex1.demo.model.YearAmountResult;
-import com.kakao_ex1.demo.model.YearNoTransResult;
+import com.kakao_ex1.demo.model.ConslidtMngAmountResult;
+import com.kakao_ex1.demo.model.YearMngAmount;
 import com.kakao_ex1.demo.model.entity.ManagementPoint;
-import com.kakao_ex1.demo.model.entity.Transaction;
 
 
 public interface ManagementRepository extends JpaRepository<ManagementPoint, String> {
@@ -35,6 +34,20 @@ public interface ManagementRepository extends JpaRepository<ManagementPoint, Str
 			+ ") AS a \n"
 			+ "GROUP BY a.trans_date, a.bank_name, a.branch_code\n"
 			+ "ORDER BY a.trans_date ASC", nativeQuery = true)
-	List<ManagementResult> getYearMngAmountSumMax();
+	List<YearMngAmount> getYearMngAmountSumMax();
+
+	@Query(value = "SELECT \n"
+			+ "    c.bank_name AS bankName\n"
+			+ "    ,c.branch_code AS branchCode\n"
+			+ "    ,Sum(CAST(a.amount AS INTEGER)-CAST(a.tax_no AS INTEGER)) as sumAmt\n"
+			+ "FROM TRANSACTION a\n"
+			+ "INNER JOIN ACCOUNT b\n"
+			+ "ON a.account_no = b.account_no\n"
+			+ "INNER JOIN MANAGEMENT_POINT c\n"
+			+ "ON b.branch_code = c.branch_code\n"
+			+ "WHERE a.cancel_yn = 'N'\n"
+			+ "AND c.bank_name = :branchCode\n"
+			+ "GROUP BY c.bank_name,c.branch_code", nativeQuery = true)
+	ConslidtMngAmountResult getAccountByBranchCode(@Param("branchCode") String branchCode);
 }
 //bankName=A, branchCode=판교점
